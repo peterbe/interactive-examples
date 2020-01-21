@@ -31,9 +31,13 @@ function _fmt(bytes) {
 
     let errors = 0;
     let warnings = 0;
+    let sizesBefore = [];
+    let sizesAfter = [];
     for (let file of files) {
         let sizeBefore = fs.statSync(file.sourcePath)['size'];
+        sizesBefore.push(sizeBefore);
         let sizeAfter = fs.statSync(file.destinationPath)['size'];
+        sizesAfter.push(sizeAfter);
         let improvement = 100 * (1 - sizeAfter / sizeBefore);
         if (improvement > THRESHOLD_ERROR) {
             errors++;
@@ -42,6 +46,16 @@ function _fmt(bytes) {
             warnings++;
             warn(file.sourcePath, sizeBefore, sizeAfter);
         }
+    }
+
+    let sumSizeBefore = sizesBefore.reduce((a, b) => a + b);
+    let sumSizeAfter = sizesAfter.reduce((a, b) => a + b);
+    if (sumSizeAfter < sumSizeBefore) {
+        console.log(
+            `In total, across ${sizesBefore.length} files, roughly ${_fmt(
+                sumSizeBefore - sumSizeAfter
+            )} can be saved.`
+        );
     }
     if (warnings) {
         console.warn(
