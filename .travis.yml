@@ -6,6 +6,7 @@ branches:
         - master
 before_script:
     - npm run build
+    - npm run imagesizecheck
     - sleep 3 # give build some time to complete
 deploy:
     provider: script
